@@ -1,7 +1,7 @@
 import styled from 'styled-components';
 import React, { useEffect, useMemo, useState } from 'react';
 
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { orderState } from '@src/recoil/orderState';
 
 import PageHeader from '@src/components/PageHeader/PageHeader';
@@ -24,6 +24,7 @@ import withLoggedIn from '@src/utils/withLoggedIn';
 import withScrollToTopOnMount from '@src/utils/withScrollToTopOnMount';
 import composeComponent from '@src/utils/composeComponent';
 import theme from '@src/theme/theme';
+import { cartState } from '@src/recoil/cartState';
 
 const NEED_ADDRESS_MESSAGE = '배송지를 입력해주세요!';
 const NEED_PAYMENT_MESSAGE = '결제수단을 선택해주세요!';
@@ -32,6 +33,7 @@ const DEFAULT_ORDER_MEMO = '부재 시 연락바랍니다.';
 
 const OrderPage: React.FC = () => {
   const { goodsList: orderGoodsList, cartIds } = useRecoilValue(orderState);
+  const [carts, setCarts] = useRecoilState(cartState);
   const [selectedAddress, setSelectedAddress] = useState<AddressInfo | null>(null);
   const [selectedPaymentId, setSelectedPaymentId] = useState<number | null>(null);
   const [isAgreementChecked, setIsAgreementChecked] = useState(false);
@@ -73,6 +75,7 @@ const OrderPage: React.FC = () => {
     };
 
     await submitOrder(submitOrderBody);
+    if (cartIds) setCarts((currentCarts) => currentCarts.filter((cart) => !cartIds.includes(cart.id)));
     setIsOrdered(true);
   };
 
